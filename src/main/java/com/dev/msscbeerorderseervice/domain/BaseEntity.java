@@ -9,16 +9,16 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.UUID;
-
 
 
 @NoArgsConstructor
 @Setter
 @Getter
 @MappedSuperclass
-public class BaseEntity {
+public class BaseEntity  {
 
     public BaseEntity(UUID id, Long version, Timestamp createdDate, Timestamp lastModifiedDate) {
         this.id = id;
@@ -33,8 +33,8 @@ public class BaseEntity {
             name = "UUID",
             strategy = "org.hibernate.id.UUIDGenerator"
     )
-    @Type(type="org.hibernate.type.UUIDCharType")
-    @Column(length = 36, columnDefinition = "varchar", updatable = false, nullable = false )
+    @Type(type = "org.hibernate.type.UUIDCharType")
+    @Column(length = 36, columnDefinition = "varchar", updatable = false, nullable = false)
     private UUID id;
 
     @Version

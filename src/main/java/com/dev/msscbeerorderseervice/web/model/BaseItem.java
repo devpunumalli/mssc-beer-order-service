@@ -23,11 +23,11 @@ public class BaseItem {
     @Positive
     private Integer version;
 
-    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ",shape = JsonFormat.Shape.STRING)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ", shape = JsonFormat.Shape.STRING)
     @JsonProperty("createdDate")
     private OffsetDateTime createdDate;
 
-    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ",shape = JsonFormat.Shape.STRING)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ", shape = JsonFormat.Shape.STRING)
     @JsonProperty("createdDate")
     private OffsetDateTime lastModifiedDate;
 }

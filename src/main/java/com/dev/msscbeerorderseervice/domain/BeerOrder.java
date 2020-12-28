@@ -17,10 +17,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @Setter
 @Getter
-public class BeerOrder extends BaseEntity {
+public class BeerOrder extends BaseEntity   {
 
     private String customerRef;
-    private OrderStatusEnum orderStatus=OrderStatusEnum.NEW;
+    private OrderStatusEnum orderStatus = OrderStatusEnum.NEW;
     private String orderStatusCallbackUrl;
 
 
@@ -41,5 +41,5 @@ public class BeerOrder extends BaseEntity {
 
     @OneToMany(mappedBy = "beerOrder", cascade = CascadeType.ALL)
     @Fetch(FetchMode.JOIN)
-private Set<BeerOrderLine> beerOrderLines;
+    private Set<BeerOrderLine> beerOrderLines;
 }

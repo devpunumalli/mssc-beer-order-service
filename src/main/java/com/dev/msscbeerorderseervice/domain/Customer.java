@@ -1,12 +1,16 @@
 package com.dev.msscbeerorderseervice.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import java.io.Serializable;
+import java.sql.Timestamp;
 import java.util.Set;
 import java.util.UUID;
 
@@ -15,11 +19,18 @@ import java.util.UUID;
 @Setter
 @Getter
 @NoArgsConstructor
-public class Customer extends BaseEntity {
-
+public class Customer extends BaseEntity   {
+    @Builder
+    public Customer(UUID id, Long version, Timestamp createdDate, Timestamp lastModifiedDate, String customerName,
+                    UUID apiKey, Set<BeerOrder> beerOrders) {
+        super(id, version, createdDate, lastModifiedDate);
+        this.customerName = customerName;
+        this.apiKey = apiKey;
+        this.beerOrders = beerOrders;
+    }
     private String customerName;
 
-    @Id
+    @Column(length = 36,columnDefinition = "varchar")
     private UUID apiKey;
 
     @OneToMany(mappedBy = "customer")

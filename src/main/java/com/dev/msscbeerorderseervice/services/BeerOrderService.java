@@ -11,7 +11,9 @@ public interface BeerOrderService {
     BeerOrderPagedList listOrders(UUID customerId, Pageable pageable);
 
     BeerOrderDto placeOrder(UUID customerId, BeerOrderDto beerOrderDto);
-    BeerOrderDto getOrderById(UUID CustomerId,UUID OrderID);
-    void  pickUpOrder(UUID customerId,UUID orderId);
+
+    BeerOrderDto getOrderById(UUID CustomerId, UUID OrderID);
+
+    void pickupOrder(UUID customerId, UUID orderId);
 
 }

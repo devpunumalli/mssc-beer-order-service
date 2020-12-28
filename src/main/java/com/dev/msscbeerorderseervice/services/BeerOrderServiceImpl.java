@@ -1,6 +1,5 @@
 package com.dev.msscbeerorderseervice.services;
 
-
 import com.dev.msscbeerorderseervice.domain.BeerOrder;
 import com.dev.msscbeerorderseervice.domain.Customer;
 import com.dev.msscbeerorderseervice.repositories.BeerOrderRepository;
@@ -10,11 +9,12 @@ import com.dev.msscbeerorderseervice.web.model.BeerOrderDto;
 import com.dev.msscbeerorderseervice.web.model.BeerOrderPagedList;
 import com.dev.msscbeerorderseervice.web.model.OrderStatusEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -23,14 +23,14 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class BeerOrderServiceImpl implements BeerOrderService {
-
-
     private final BeerOrderRepository beerOrderRepository;
     private final CustomerRepository customerRepository;
     private final BeerOrderMapper beerOrderMapper;
     private final ApplicationEventPublisher publisher;
 
-    public BeerOrderServiceImpl(BeerOrderRepository beerOrderRepository, CustomerRepository customerRepository, BeerOrderMapper beerOrderMapper, ApplicationEventPublisher publisher) {
+    public BeerOrderServiceImpl(BeerOrderRepository beerOrderRepository,
+                                CustomerRepository customerRepository,
+                                BeerOrderMapper beerOrderMapper, ApplicationEventPublisher publisher) {
         this.beerOrderRepository = beerOrderRepository;
         this.customerRepository = customerRepository;
         this.beerOrderMapper = beerOrderMapper;
@@ -39,21 +39,25 @@ public class BeerOrderServiceImpl implements BeerOrderService {
 
     @Override
     public BeerOrderPagedList listOrders(UUID customerId, Pageable pageable) {
+        Optional<Customer> customerOptional = customerRepository.findById(customerId);
 
+        if (customerOptional.isPresent()) {
+            Page<BeerOrder> beerOrderPage =
+                    beerOrderRepository.findAllByCustomer(customerOptional.get(), pageable);
 
-        Optional<Customer> customer = customerRepository.findById(customerId);
-        if (customer.isPresent()) {
-            Page<BeerOrder> beerOrdersPage = beerOrderRepository.findAllByCustomer(customer.get(), pageable);
-            return  new BeerOrderPagedList(beerOrdersPage.stream()
-                                                   .map(beerOrderMapper::beerOrderToDto)
-                                                   .collect(Collectors.toList()),
-                                           PageRequest.of(beerOrdersPage.getPageable().getPageNumber(),
-                                                          beerOrdersPage.getPageable().getPageSize()),
-                                           beerOrdersPage.getTotalElements());
+            return new BeerOrderPagedList(beerOrderPage
+                                                  .stream()
+                                                  .map(beerOrderMapper::beerOrderToDto)
+                                                  .collect(Collectors.toList()), PageRequest.of(
+                    beerOrderPage.getPageable().getPageNumber(),
+                    beerOrderPage.getPageable().getPageSize()),
+                                          beerOrderPage.getTotalElements());
         } else {
             return null;
         }
     }
+
+    @Transactional
     @Override
     public BeerOrderDto placeOrder(UUID customerId, BeerOrderDto beerOrderDto) {
         Optional<Customer> customerOptional = customerRepository.findById(customerId);
@@ -74,24 +78,24 @@ public class BeerOrderServiceImpl implements BeerOrderService {
             //  publisher.publishEvent(new NewBeerOrderEvent(savedBeerOrder));
 
             return beerOrderMapper.beerOrderToDto(savedBeerOrder);
-        }else{
-            throw new RuntimeException("customer Not Found");
         }
+        //todo add exception type
+        throw new RuntimeException("Customer Not Found");
     }
 
     @Override
     public BeerOrderDto getOrderById(UUID customerId, UUID orderId) {
-
-        return beerOrderMapper.beerOrderToDto(  getOrder(customerId,orderId));
+        return beerOrderMapper.beerOrderToDto(getOrder(customerId, orderId));
     }
 
     @Override
-    public void pickUpOrder(UUID customerId, UUID orderId) {
+    public void pickupOrder(UUID customerId, UUID orderId) {
         BeerOrder beerOrder = getOrder(customerId, orderId);
         beerOrder.setOrderStatus(OrderStatusEnum.PICKED_UP);
-        beerOrderRepository.save(beerOrder);
 
+        beerOrderRepository.save(beerOrder);
     }
+
     private BeerOrder getOrder(UUID customerId, UUID orderId){
         Optional<Customer> customerOptional = customerRepository.findById(customerId);
 

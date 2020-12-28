@@ -14,7 +14,7 @@ import java.util.UUID;
 @Setter
 @Getter
 @NoArgsConstructor
-public class BeerOrderLine extends BaseEntity{
+public class BeerOrderLine extends BaseEntity {
     @Builder
     public BeerOrderLine(UUID id, Long version, Timestamp createdDate, Timestamp lastModifiedDate,
                          BeerOrder beerOrder, UUID beerId, Integer orderQuantity,

@@ -4,7 +4,7 @@ import com.dev.msscbeerorderseervice.domain.BeerOrder;
 import com.dev.msscbeerorderseervice.web.model.BeerOrderDto;
 import org.mapstruct.Mapper;
 
-@Mapper(uses = {DateMapper.class,BeerOrderLineMapper.class})
+@Mapper(uses = {DateMapper.class, BeerOrderLineMapper.class})
 public interface BeerOrderMapper {
     BeerOrderDto beerOrderToDto(BeerOrder beerOrder);
 

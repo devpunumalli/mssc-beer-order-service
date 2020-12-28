@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.UUID;
 
 
-
 @NoArgsConstructor
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -25,6 +24,7 @@ public class BeerOrderDto extends BaseItem {
         this.orderStatusCallbackUrl = orderStatusCallbackUrl;
         this.customerRef = customerRef;
     }
+
     private UUID customerId;
     private OrderStatusEnum orderStatus;
     private List<BeerOrderLineDto> beerOrderLines;
