@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jms.artemis.ArtemisAutoConfiguration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@SpringBootApplication(exclude = ArtemisAutoConfiguration.class)
+@SpringBootApplication
 public class MsscbeerorderserviceApplication {
 
     public static void main(String[] args) {
