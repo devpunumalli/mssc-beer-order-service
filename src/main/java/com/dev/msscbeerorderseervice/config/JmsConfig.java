@@ -10,11 +10,11 @@ import org.springframework.jms.support.converter.MessageType;
 public class JmsConfig {
 
 
-    public static final String MY_QUEUE="devendra";
-    public static final String MY_QUEUE_2="replybacktome";
+    public static final String VALIDATE_ORDER_QUEUE="validate-order";
+
 
     @Bean
-    public MessageConverter messageConverter(){
+    public MessageConverter jacksonMessageConverter(){
         MappingJackson2MessageConverter converter=new MappingJackson2MessageConverter();
         converter.setTargetType(MessageType.TEXT);
         converter.setTypeIdPropertyName("_type");
