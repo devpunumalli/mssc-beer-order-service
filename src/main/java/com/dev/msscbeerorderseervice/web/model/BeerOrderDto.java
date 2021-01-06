@@ -1,5 +1,6 @@
 package com.dev.msscbeerorderseervice.web.model;
 
+import com.dev.msscbeerorderseervice.domain.BeerOrderStatusEnum;
 import lombok.*;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,7 @@ public class BeerOrderDto extends BaseItem {
 
     @Builder
     public BeerOrderDto(UUID id, Integer version, OffsetDateTime createdDate, OffsetDateTime lastModifiedDate, UUID customerId, List<BeerOrderLineDto> beerOrderLines,
-                        OrderStatusEnum orderStatus, String orderStatusCallbackUrl, String customerRef) {
+                        BeerOrderStatusEnum orderStatus, String orderStatusCallbackUrl, String customerRef) {
         super(id, version, createdDate, lastModifiedDate);
         this.customerId = customerId;
         this.beerOrderLines = beerOrderLines;
@@ -26,7 +27,7 @@ public class BeerOrderDto extends BaseItem {
     }
 
     private UUID customerId;
-    private OrderStatusEnum orderStatus;
+    private BeerOrderStatusEnum orderStatus;
     private List<BeerOrderLineDto> beerOrderLines;
     private String orderStatusCallbackUrl;
     private String customerRef;
