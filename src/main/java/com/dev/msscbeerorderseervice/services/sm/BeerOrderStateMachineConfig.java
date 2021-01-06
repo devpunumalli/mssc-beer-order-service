@@ -1,4 +1,4 @@
-package com.dev.msscbeerorderseervice.services;
+package com.dev.msscbeerorderseervice.services.sm;
 
 
 import com.dev.msscbeerorderseervice.domain.BeerOrderEventEnum;
