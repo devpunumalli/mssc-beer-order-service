@@ -1,4 +1,4 @@
-package com.dev.msscbeerorderseervice.web.model;
+package com.dev.brewery.model;
 
 
 import lombok.*;
