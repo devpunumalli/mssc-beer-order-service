@@ -1,5 +1,6 @@
 package com.dev.msscbeerorderseervice.services;
 
+import com.dev.brewery.model.BeerOrderDto;
 import com.dev.msscbeerorderseervice.domain.BeerOrder;
 import com.dev.msscbeerorderseervice.domain.BeerOrderEventEnum;
 import com.dev.msscbeerorderseervice.domain.BeerOrderStatusEnum;
@@ -36,7 +37,7 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
         BeerOrder savedBeerOrder = beerOrderRepository.save(beerOrder);
 
         //need to send an event from the stat machine.Spring Message class can be used to send that event
-        sendNewBeerOrderEvent(savedBeerOrder,BeerOrderEventEnum.VALIDATE_ORDER);
+        sendBeerOrderEvent(savedBeerOrder,BeerOrderEventEnum.VALIDATE_ORDER);
         return savedBeerOrder;
     }
 
@@ -44,15 +45,15 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
     public void processValidationResult(UUID beerOrderId, Boolean isValid) {
         BeerOrder beerOrder = beerOrderRepository.getOne(beerOrderId);
         if(isValid){
-            sendNewBeerOrderEvent(beerOrder,BeerOrderEventEnum.VALIDATION_PASSED);
+            sendBeerOrderEvent(beerOrder,BeerOrderEventEnum.VALIDATION_PASSED);
             BeerOrder validatedOrder = beerOrderRepository.getOne(beerOrderId);
-            sendNewBeerOrderEvent(validatedOrder,BeerOrderEventEnum.ALLOCATE_ORDER);
+            sendBeerOrderEvent(validatedOrder,BeerOrderEventEnum.ALLOCATE_ORDER);
         }else{
-            sendNewBeerOrderEvent(beerOrder,BeerOrderEventEnum.VALIDATION_FAILED);
+            sendBeerOrderEvent(beerOrder,BeerOrderEventEnum.VALIDATION_FAILED);
         }
     }
 
-    private void sendNewBeerOrderEvent(BeerOrder savedBeerOrder, BeerOrderEventEnum validateOrder) {
+    private void sendBeerOrderEvent(BeerOrder savedBeerOrder, BeerOrderEventEnum validateOrder) {
         StateMachine<BeerOrderStatusEnum, BeerOrderEventEnum> sm = build(savedBeerOrder);
         Message<BeerOrderEventEnum> msg = MessageBuilder.withPayload(validateOrder)
                 .setHeader(ORDER_ID_HEADER, savedBeerOrder.getId().toString())
@@ -69,5 +70,40 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
         });
         stateMachine.start();
       return stateMachine;
+    }
+
+    @Override
+    public void beerOrderAllocationPassed(BeerOrderDto beerOrderDto) {
+        BeerOrder beerOrder = beerOrderRepository.getOne(beerOrderDto.getId());
+        sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.ALLOCATION_SUCCESS);
+        updateAllocatedQty(beerOrderDto, beerOrder);
+    }
+
+    @Override
+    public void beerOrderAllocationPendingInventory(BeerOrderDto beerOrderDto) {
+        BeerOrder beerOrder = beerOrderRepository.getOne(beerOrderDto.getId());
+        sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.ALLOCATION_NO_INVENTORY);
+
+        updateAllocatedQty(beerOrderDto, beerOrder);
+    }
+
+    private void updateAllocatedQty(BeerOrderDto beerOrderDto, BeerOrder beerOrder) {
+        BeerOrder allocatedOrder = beerOrderRepository.getOne(beerOrderDto.getId());
+
+        allocatedOrder.getBeerOrderLines().forEach(beerOrderLine -> {
+            beerOrderDto.getBeerOrderLines().forEach(beerOrderLineDto -> {
+                if(beerOrderLine.getId() .equals(beerOrderLineDto.getId())){
+                    beerOrderLine.setQuantityAllocated(beerOrderLineDto.getQuantityAllocated());
+                }
+            });
+        });
+
+        beerOrderRepository.saveAndFlush(beerOrder);
+    }
+
+    @Override
+    public void beerOrderAllocationFailed(BeerOrderDto beerOrderDto) {
+        BeerOrder beerOrder = beerOrderRepository.getOne(beerOrderDto.getId());
+        sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.ALLOCATION_FAILED);
     }
 }
